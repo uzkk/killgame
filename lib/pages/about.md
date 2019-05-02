@@ -1,0 +1,1 @@
+![newspaper](/img/newspaper.jpg)

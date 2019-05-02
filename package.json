@@ -33,9 +33,11 @@
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^5.2.2",
     "vuepress": "^1.0.0-alpha.47",
-    "vuepress-theme-uzkk": "^1.0.0-alpha.32"
+    "vuepress-theme-uzkk": "^1.0.0-alpha.33"
   },
   "dependencies": {
-    "colyseus.js": "^0.10.5"
+    "colyseus.js": "^0.10.5",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.4.1"
   }
 }

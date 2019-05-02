@@ -1,10 +1,12 @@
 <template>
   <div>
+    <div class="section" v-if="!$app.isReady">
+    </div>
     <div class="section">
       <div class="setting">
         <span>昵称：</span>
         <Input
-          v-model="nickname"
+          v-model="$app.username"
           placeholder="请输入昵称"
           :validate="_ => _"
           inactive
@@ -21,7 +23,7 @@
         <Button
           class="create"
           @click="create"
-          :disabled="!connected || !roomname || !nickname"
+          :disabled="!$app.isReady || !roomname || !$app.username"
         >创建</Button>
       </div>
     </div>
@@ -49,6 +51,7 @@
 <script>
 
 import { Button, Input, CollapseView } from '@uzkk/components'
+import { Client } from 'colyseus.js'
 
 export default {
   components: {
@@ -57,50 +60,27 @@ export default {
     CollapseView,
   },
 
+  inject: ['$app'],
+
   data: () => ({
-    nickname: '',
     roomname: '',
-    connected: false,
     rooms: [],
     updater: null,
     currentRoom: null,
   }),
 
-  async mounted () {
-    const { Client } = await import('colyseus.js')
-    this.client = new Client(this.UZKK_KILLGAME_HOST)
-
-    this.client.onOpen.add(() => {
-      this.connected = true
-      this.updater = setInterval(() => {
-        if (!this.client) return
-        this.client.getAvailableRooms('killgame', (rooms, error) => {
-          if (error) {
-            console.err(error)
-            return
-          }
-          this.rooms = rooms
-        })
-      }, 100)
-    })
-
-    this.client.onClose.add(() => {
-      clearInterval(this.updater)
-    })
-  },
-
   methods: {
     create () {
-      if (!this.client) return
-      const room = this.client.join('killgame', {
+      if (!this.$app.client) return
+      const room = this.$app.client.join('killgame', {
         create: true,
         name: this.roomname,
       })
       this.addRoomListener(room)
     },
     join (id) {
-      if (!this.client) return
-      const room = this.client.join(id)
+      if (!this.$app.client) return
+      const room = this.$app.client.join(id)
       this.addRoomListener(room)
     },
     addRoomListener (room) {
@@ -110,8 +90,8 @@ export default {
       room.onLeave.add(() => {
         this.currentRoom = null
       })
-      room.onStateChange.add(function(data) {
-        console.log("chat update: ", data)
+      room.onStateChange.add((data) => {
+        console.log('chat update: ', data)
       })
     },
   },
@@ -135,7 +115,7 @@ export default {
 
   > *
     display table-cell
-  
+
   .create
     transform translateX(0.5em)
 

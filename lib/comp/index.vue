@@ -6,17 +6,28 @@
 
 <script>
 
-import Hall from './Hall'
+import Entry from './Entry'
+import Lobby from './Lobby'
+import ClientMixin from '../client'
 import FadeSlideTransition from '@theme-uzkk/transitions/FadeSlide'
 
 export default {
   components: {
-    Hall,
+    Entry,
+    Lobby,
     FadeSlideTransition,
   },
 
+  mixins: [ClientMixin],
+
+  provide () {
+    return {
+      $app: this,
+    }
+  },
+
   data: () => ({
-    phase: 'Hall',
+    phase: 'Entry',
   }),
 }
 
