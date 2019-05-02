@@ -11,7 +11,7 @@ module.exports = (context) => ({
     [require('@uzkk/not-found')],
     [require('@uzkk/shared-assets')],
     [require('../..'), {
-      host: context.isProd ? '188.131.137.197' : 'localhost',
+      host: process.env.CI ? '188.131.137.197' : 'localhost',
       base: '/',
     }],
   ],
