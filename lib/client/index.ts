@@ -1,19 +1,50 @@
 import { Client, Room } from 'colyseus.js'
+import { getSettings, setSettings, Settings } from './storage'
 
-interface ClientInstance {
+interface UserOptions {
+  name: string
+}
+
+interface RoomMessage {
+  type: string
+  data: any
+}
+
+interface ClientInstance extends Settings {
   UZKK_KILLGAME_HOST: string
   clientState: 0 | 1 | 2
   lobbyState: 0 | 1 | 2
-  username: string
   client: Client
   lobby: Room
+  rooms: any[]
+  users: Record<string, UserOptions>
+  phase: 'Entry' | 'Lobby' | 'Room' | 'Play'
+  currentRoom: Room
+  login (this: ClientInstance, saveSettings: boolean): void
+  logout (this: ClientInstance): void
+  createRoom (this: ClientInstance): void
+  joinRoom (this: ClientInstance, roomId: string): void
+  monitorRoom (this: ClientInstance, room: Room): void
+}
+
+const messageHandler: Record<string, (this: ClientInstance, data: any) => void> = {
+  rooms (data) {
+    this.rooms = data
+  },
+  users (data) {
+    this.users = data
+  },
 }
 
 export default {
   data: () => ({
-    username: '',
+    ...getSettings(),
     clientState: 2,
     lobbyState: 2,
+    roomname: '',
+    phase: 'Entry',
+    rooms: [],
+    users: {},
   }),
 
   computed: {
@@ -29,6 +60,7 @@ export default {
     client.onOpen.addOnce(() => {
       this.client = client
       this.clientState = 0
+      this.login(false)
     })
 
     client.onClose.addOnce(() => {
@@ -38,20 +70,27 @@ export default {
   },
 
   methods: {
-    login (this: ClientInstance, callback: Function) {
-      if (this.clientState) return
+    login (this: ClientInstance, saveSettings = true) {
+      if (this.clientState || !this.username) return
       const lobby = this.client.join('killgame-lobby', {
-        username: this.username,
+        name: this.username,
       })
       this.lobbyState = 1
 
       lobby.onJoin.addOnce(() => {
         this.lobby = lobby
         this.lobbyState = 0
-        if (callback) callback()
-        lobby.onMessage.add((message) => {
-          console.log(message)
+        lobby.onMessage.add((message: RoomMessage) => {
+          if (message.type in messageHandler) {
+            messageHandler[message.type].call(this, message.data)
+          } else {
+            console.warn('Unknown message:', message)
+          }
         })
+        if (saveSettings) {
+          setSettings(this)
+        }
+        this.phase = 'Lobby'
       })
 
       lobby.onLeave.addOnce(() => {
@@ -63,6 +102,37 @@ export default {
     logout (this: ClientInstance) {
       if (!this.lobby) return
       this.lobby.leave()
+      this.phase = 'Entry'
+    },
+
+    createRoom (this: ClientInstance) {
+      if (this.clientState) return
+      const room = this.client.join('killgame', {
+        create: true,
+        name: this.roomname,
+        userId: this.client.id,
+      })
+      this.monitorRoom(room)
+    },
+
+    joinRoom (this: ClientInstance, roomId: string) {
+      if (this.clientState) return
+      const room = this.client.join(roomId, {
+        userId: this.client.id,
+      })
+      this.monitorRoom(room)
+    },
+
+    monitorRoom (this: ClientInstance, room: Room) {
+      room.onJoin.add(() => {
+        this.currentRoom = room
+      })
+      room.onLeave.add(() => {
+        this.currentRoom = null
+      })
+      room.onStateChange.add((data) => {
+        console.log('update: ', data)
+      })
     },
   },
 }

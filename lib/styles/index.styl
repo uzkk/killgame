@@ -1,5 +1,21 @@
-.killgame.emphasize
+.killgame .emphasize
   color #d00
+
+.setting-container
+  display flex
+  flex-direction row
+  align-items baseline
+  justify-content center
+  max-width 400px
+  margin 2rem auto
+  transition 0.3s ease
+
+  span
+    font-weight bold
+    display inline-block
+
+  .input.inactive:not(.focused)
+    margin-right -1em
 
 .killgame .section
   a:hover

@@ -1,29 +1,30 @@
 <template>
   <div>
-    <div class="section" v-if="!$app.isReady">
+    <div class="section">
+      <h3>当前信息</h3>
+      <table class="current-info">
+        <tr>
+          <td class="title">用户名</td>
+          <td>{{ $app.username }}</td>
+        </tr>
+        <tr>
+          <td class="title">当前在线人数</td>
+          <td>{{ Object.keys($app.users).length }}</td>
+        </tr>
+      </table>
     </div>
     <div class="section">
-      <div class="setting">
-        <span>昵称：</span>
-        <Input
-          v-model="$app.username"
-          placeholder="请输入昵称"
-          :validate="_ => _"
-          inactive
-        />
-      </div>
-      <div class="setting">
+      <div class="setting-container">
         <span>房间名：</span>
         <Input
-          v-model="roomname"
+          v-model="$app.roomname"
           placeholder="请输入房间名"
-          :validate="_ => _"
-          inactive
         />
+      </div>
+      <div class="button-container">
         <Button
-          class="create"
-          @click="create"
-          :disabled="!$app.isReady || !roomname || !$app.username"
+          @click="$app.createRoom"
+          :disabled="!$app.roomname"
         >创建</Button>
       </div>
     </div>
@@ -33,18 +34,24 @@
     </div>
     <collapse-view class="section" initial="open">
       <h3 slot="header">当前房间列表</h3>
-      <table class="available-rooms" v-if="rooms.length">
-        <tr v-for="(room, index) in rooms" :key="index">
-          <td>{{ room.roomId }}</td>
-          <td>{{ room.metadata.name }}</td>
-          <td>{{ room.clients }}</td>
-          <td><a @click.stop="join(room.roomId)">加入</a></td>
+      <table class="available-rooms" v-if="$app.rooms.length">
+        <tr v-for="(room, index) in $app.rooms" :key="index">
+          <td>{{ room.id }}</td>
+          <td>{{ room.name }}</td>
+          <td>{{ room.clients.length }}</td>
+          <td>{{ room.ownerId }}</td>
+          <td><a @click.stop="$app.joinRoom(room.roomId)">加入</a></td>
         </tr>
       </table>
       <p v-else>
         当前没有房间。
       </p>
     </collapse-view>
+    <div class="button-container">
+      <Button @click="$app.logout" type="warning">
+        返回主页
+      </Button>
+    </div>
   </div>
 </template>
 
@@ -63,43 +70,21 @@ export default {
   inject: ['$app'],
 
   data: () => ({
-    roomname: '',
-    rooms: [],
-    updater: null,
     currentRoom: null,
   }),
 
   methods: {
-    create () {
-      if (!this.$app.client) return
-      const room = this.$app.client.join('killgame', {
-        create: true,
-        name: this.roomname,
-      })
-      this.addRoomListener(room)
-    },
-    join (id) {
-      if (!this.$app.client) return
-      const room = this.$app.client.join(id)
-      this.addRoomListener(room)
-    },
-    addRoomListener (room) {
-      room.onJoin.add(() => {
-        this.currentRoom = room
-      })
-      room.onLeave.add(() => {
-        this.currentRoom = null
-      })
-      room.onStateChange.add((data) => {
-        console.log('chat update: ', data)
-      })
-    },
   },
 }
 
 </script>
 
 <style lang="stylus" scoped>
+
+.setting-container
+  span
+    width 6rem
+    min-width 4rem
 
 .setting
   display table
@@ -115,9 +100,6 @@ export default {
 
   > *
     display table-cell
-
-  .create
-    transform translateX(0.5em)
 
 .available-rooms
   a

@@ -3,8 +3,8 @@
     <h1 class="tac">人类杀游戏</h1>
     <img
       class="tac title-image"
-      src="/img/newspaper.jpg"
       alt="newspaper"
+      :src="UZKK_KILLGAME_BASE + 'img/newspaper.jpg'"
       @load="attachMediumZoom"
     />
     <div class="setting-container">
@@ -20,8 +20,8 @@
     </div>
     <div class="button-container">
       <Button
-        @click="$app.login(() => $app.phase = 'Lobby')"
-        :disabled="!$app.username || $app.clientState || $app.lobbyState === 1"
+        @click="$app.login"
+        :disabled="!$app.username || !!$app.clientState || $app.lobbyState === 1"
       >
         <template v-if="$app.clientState">
           无法连接至服务器
@@ -76,30 +76,17 @@ export default {
 h1
   margin 3rem 0
 
-.setting-container
-  font-size 1.1rem
-  display flex
-  flex-direction row
-  align-items baseline
-  justify-content center
-  max-width 400px
-  margin 2rem auto
-  transition 0.3s ease
-
-  span
-    width 4rem
-    min-width 3rem
-    font-weight bold
-    display inline-block
-
-  .input.inactive:not(.focused)
-    margin-right -1em
-
 img.title-image
   display block
   width 100%
   max-width 486.5px
   margin 0 auto
+
+.setting-container
+  span
+    font-size 1.1rem
+    width 4rem
+    min-width 3rem
 
 i.icon-loading
   font-size 1.2rem

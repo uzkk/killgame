@@ -25,10 +25,6 @@ export default {
       $app: this,
     }
   },
-
-  data: () => ({
-    phase: 'Entry',
-  }),
 }
 
 </script>
