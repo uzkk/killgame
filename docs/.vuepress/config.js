@@ -11,7 +11,7 @@ module.exports = (context) => ({
     [require('@uzkk/not-found')],
     [require('@uzkk/shared-assets')],
     [require('../..'), {
-      host: process.env.CI ? 'www.shigma.xyz' : 'localhost',
+      server: process.env.CI ? 'shigma.xyz/killgame' : 'localhost:2567',
       base: '/',
     }],
   ],

@@ -11,7 +11,7 @@ interface RoomMessage {
 }
 
 interface ClientInstance extends Settings {
-  UZKK_KILLGAME_HOST: string
+  UZKK_KILLGAME_SERVER: string
   clientState: 0 | 1 | 2
   lobbyState: 0 | 1 | 2
   client: Client
@@ -54,7 +54,7 @@ export default {
   },
 
   mounted (this: ClientInstance) {
-    const client = new Client(this.UZKK_KILLGAME_HOST)
+    const client = new Client(this.UZKK_KILLGAME_SERVER)
     this.clientState = 1
 
     client.onOpen.addOnce(() => {
