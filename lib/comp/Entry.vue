@@ -4,7 +4,7 @@
     <img
       class="tac title-image"
       alt="newspaper"
-      :src="UZKK_KILLGAME_BASE + 'img/newspaper.jpg'"
+      :src="UZKK_KILLGAME_BASE + 'assets/img/newspaper.jpg'"
       @load="attachMediumZoom"
     />
     <div class="setting-container">
