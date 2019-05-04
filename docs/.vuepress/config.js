@@ -8,10 +8,11 @@ module.exports = (context) => ({
   theme: 'uzkk',
 
   plugins: [
+    ['public-files', '.vuepress/public'],
     [require('@uzkk/not-found')],
     [require('@uzkk/shared-assets')],
     [require('../..'), {
-      server: process.env.CI ? 'shigma.xyz/killgame' : 'localhost:2567',
+      server: process.env.CI ? 'www.shigma.xyz/killgame' : 'localhost:2567',
       base: '/',
     }],
   ],
