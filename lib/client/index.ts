@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js'
-import { getSettings, setSettings, useFallback, Settings } from './storage'
+import { getSettings, setSettings, Settings } from './storage'
 
 interface UserOptions {
   name: string
@@ -10,13 +10,20 @@ interface RoomMessage {
   data: any
 }
 
+interface RoomOptions {
+  id: string
+  name: string
+  clients: string[]
+  ownerId: string
+}
+
 interface ClientInstance extends Settings {
   UZKK_KILLGAME_SERVER: string
   clientState: 0 | 1 | 2
   lobbyState: 0 | 1 | 2
   client: Client
   lobby: Room
-  rooms: any[]
+  rooms: RoomOptions[]
   users: Record<string, UserOptions>
   phase: 'Entry' | 'Lobby' | 'Room' | 'Play'
   currentRoom: Room
@@ -29,11 +36,17 @@ interface ClientInstance extends Settings {
 }
 
 const messageHandler: Record<string, (this: ClientInstance, data: any) => void> = {
-  rooms (data) {
-    this.rooms = data
+  rooms (data: RoomOptions[]) {
+    this.rooms = data.map(room => {
+      room.name = decodeURIComponent(room.name)
+      return room
+    })
   },
   users (data) {
     this.users = data
+    for (const key in data) {
+      this.users[key].name = decodeURIComponent(data[key].name)
+    }
   },
 }
 
@@ -83,7 +96,7 @@ export default {
     login (this: ClientInstance, saveSettings = true) {
       if (!this.isReadyForLogin) return
       const lobby = this.client.join('killgame-lobby', {
-        name: this.username,
+        name: encodeURIComponent(this.username),
       })
       this.lobbyState = 1
 
@@ -128,7 +141,7 @@ export default {
       if (this.clientState) return
       const room = this.client.join('killgame', {
         create: true,
-        name: this.roomname,
+        name: encodeURIComponent(this.roomname),
         userId: this.client.id,
       })
       this.monitorRoom(room)
