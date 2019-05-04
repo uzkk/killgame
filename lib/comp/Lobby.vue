@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1 class="tac">游戏大厅</h1>
     <div class="section">
       <h3>用户名：{{ $app.username }}</h3>
     </div>

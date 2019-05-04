@@ -71,6 +71,11 @@ export default {
     client.onClose.addOnce(() => {
       this.client = null
       this.clientState = 2
+      this.phase = 'Entry'
+    })
+
+    client.onError.add((error: Error) => {
+      console.error('Client error:', error)
     })
   },
 
@@ -101,6 +106,11 @@ export default {
       lobby.onLeave.addOnce(() => {
         this.lobby = null
         this.lobbyState = 2
+        this.phase = 'Entry'
+      })
+
+      lobby.onError.add((error: Error) => {
+        console.error('Lobby error:', error)
       })
     },
 
