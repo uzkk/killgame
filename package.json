@@ -34,7 +34,7 @@
     "eslint-plugin-vue": "^5.2.2",
     "vuepress": "^1.0.0-alpha.47",
     "vuepress-plugin-public-files": "^1.0.0-alpha.0",
-    "vuepress-theme-uzkk": "^1.0.0-alpha.33",
+    "vuepress-theme-uzkk": "^1.0.0-alpha.34",
     "ws": "^7.0.0"
   },
   "dependencies": {

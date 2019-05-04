@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js'
-import { getSettings, setSettings, Settings } from './storage'
+import { getSettings, setSettings, useFallback, Settings } from './storage'
 
 interface UserOptions {
   name: string
@@ -20,6 +20,7 @@ interface ClientInstance extends Settings {
   users: Record<string, UserOptions>
   phase: 'Entry' | 'Lobby' | 'Room' | 'Play'
   currentRoom: Room
+  isReadyForLogin: boolean
   login (this: ClientInstance, saveSettings: boolean): void
   logout (this: ClientInstance): void
   createRoom (this: ClientInstance): void
@@ -51,6 +52,10 @@ export default {
     isReady () {
       return !this.clientState && !this.lobbyState
     },
+
+    isReadyForLogin (this: ClientInstance) {
+      return this.username && !this.clientState && this.lobbyState === 2
+    },
   },
 
   mounted (this: ClientInstance) {
@@ -71,7 +76,7 @@ export default {
 
   methods: {
     login (this: ClientInstance, saveSettings = true) {
-      if (this.clientState || !this.username) return
+      if (!this.isReadyForLogin) return
       const lobby = this.client.join('killgame-lobby', {
         name: this.username,
       })
@@ -99,8 +104,12 @@ export default {
       })
     },
 
-    logout (this: ClientInstance) {
+    logout (this: ClientInstance, saveSettings = true) {
       if (!this.lobby) return
+      this.username = ''
+      if (saveSettings) {
+        setSettings(this)
+      }
       this.lobby.leave()
       this.phase = 'Entry'
     },
@@ -116,7 +125,7 @@ export default {
     },
 
     joinRoom (this: ClientInstance, roomId: string) {
-      if (this.clientState) return
+      if (this.clientState || !roomId) return
       const room = this.client.join(roomId, {
         userId: this.client.id,
       })

@@ -1,17 +1,15 @@
 <template>
   <div>
     <div class="section">
-      <h3>当前信息</h3>
-      <table class="current-info">
-        <tr>
-          <td class="title">用户名</td>
-          <td>{{ $app.username }}</td>
-        </tr>
-        <tr>
-          <td class="title">当前在线人数</td>
-          <td>{{ Object.keys($app.users).length }}</td>
-        </tr>
-      </table>
+      <h3>用户名：{{ $app.username }}</h3>
+    </div>
+    <div class="section">
+      <h3>当前在线用户</h3>
+      <ul>
+        <li v-for="({ name }, id) in $app.users" :key="id">
+          {{ name }} <span class="id">({{ id }})</span>
+        </li>
+      </ul>
     </div>
     <div class="section">
       <div class="setting-container">
@@ -28,19 +26,22 @@
         >创建</Button>
       </div>
     </div>
-    <div v-if="currentRoom">
-      {{ currentRoom.id }}
-      {{ currentRoom.options }}
-    </div>
     <collapse-view class="section" initial="open">
       <h3 slot="header">当前房间列表</h3>
       <table class="available-rooms" v-if="$app.rooms.length">
+        <tr>
+          <td>房间号</td>
+          <td>房间名称</td>
+          <td>已有人数</td>
+          <td>房主</td>
+          <td></td>
+        </tr>
         <tr v-for="(room, index) in $app.rooms" :key="index">
           <td>{{ room.id }}</td>
           <td>{{ room.name }}</td>
           <td>{{ room.clients.length }}</td>
-          <td>{{ room.ownerId }}</td>
-          <td><a @click.stop="$app.joinRoom(room.roomId)">加入</a></td>
+          <td>{{ $app.users[room.ownerId].name }}</td>
+          <td><a @click.stop="$app.joinRoom(room.id)">加入</a></td>
         </tr>
       </table>
       <p v-else>
@@ -80,6 +81,9 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+
+span.id
+  color $lightTextColor
 
 .setting-container
   span

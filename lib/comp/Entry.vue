@@ -14,6 +14,7 @@
         placeholder="请输入昵称"
         :size="1.1"
         :inactive="!hoverSettings"
+        @enter="$app.login()"
         @mouseenter.native="hoverSettings = true"
         @mouseleave.native="hoverSettings = false"
       />
@@ -21,13 +22,16 @@
     <div class="button-container">
       <Button
         @click="$app.login"
-        :disabled="!$app.username || !!$app.clientState || $app.lobbyState === 1"
+        :disabled="!$app.isReadyForLogin"
       >
-        <template v-if="$app.clientState">
+        <template v-if="$app.clientState === 2">
           无法连接至服务器
         </template>
+        <template v-else-if="$app.clientState === 1">
+          <i class="icon-loading"/>正在连接服务器<i class="icon-loading"/>
+        </template>
         <template v-else-if="$app.lobbyState === 1">
-          <i class="icon-loading"/>正在进入<i class="icon-loading"/>
+          <i class="icon-loading"/>正在进入大厅<i class="icon-loading"/>
         </template>
         <template v-else>
           进入大厅
@@ -67,12 +71,6 @@ export default {
 
 <style lang="stylus" scoped>
 
-@keyframes rotating
-  0%
-    transform rotateZ(0)
-  100%
-    transform:rotateZ(360deg)
-
 h1
   margin 3rem 0
 
@@ -92,6 +90,5 @@ i.icon-loading
   font-size 1.2rem
   vertical-align middle
   margin 0 4px
-  animation rotating 1s linear infinite
 
 </style>
