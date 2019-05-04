@@ -4,7 +4,7 @@
     <img
       class="tac title-image"
       alt="newspaper"
-      src="assets/img/newspaper.jpg"
+      src="/killgame/assets/img/newspaper.jpg"
       @load="attachMediumZoom"
     />
     <div class="setting-container">

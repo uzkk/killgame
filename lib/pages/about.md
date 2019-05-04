@@ -1,1 +1,1 @@
-![newspaper](/assets/img/newspaper.jpg)
+![newspaper](/killgame/assets/img/newspaper.jpg)
